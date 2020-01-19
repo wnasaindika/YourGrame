@@ -4,9 +4,12 @@ import com.indi.meldcx.data.CaptureImage
 import com.indi.meldcx.ui.base.presenter.BasePresenter
 import com.indi.meldcx.ui.list.view.SearchListView
 import com.indi.meldcx.ui.vm.MeldCXViewModel
+import com.indi.meldcx.util.deleteImage
+import java.io.File
 import javax.inject.Inject
 
-class ListPresenter<V : SearchListView> @Inject internal constructor(private val viewModel: MeldCXViewModel) : BasePresenter<V>(viewModel),ListVMPresenter<V> {
+class ListPresenter<V : SearchListView> @Inject internal constructor(private val viewModel: MeldCXViewModel) :
+    BasePresenter<V>(viewModel), ListVMPresenter<V> {
 
     override fun onAttach(view: V?) {
         super.onAttach(view)
@@ -15,7 +18,7 @@ class ListPresenter<V : SearchListView> @Inject internal constructor(private val
         }
         getView()?.addListSearchView()
         getView()?.performSearch(adapter)
-        getView()?.onSearchTextClear(adapter,viewModel.images)
+        getView()?.onSearchTextClear(adapter, viewModel.images)
     }
 
     override fun onDetach() {
@@ -23,5 +26,7 @@ class ListPresenter<V : SearchListView> @Inject internal constructor(private val
         getView()?.removeListSearchView()
     }
 
-    override fun onDeleteItem(captureImage: CaptureImage) = viewModel.deleteImage( viewModel.images.value?.find { it.id == captureImage.id }?.id ?: "")
+    override fun onDeleteItem(captureImage: CaptureImage) = viewModel
+        .deleteImage(viewModel.images.value?.find { it.id == captureImage.id }?.id ?: "")
+        .also { deleteImage(File(captureImage.imageLocation)) }
 }

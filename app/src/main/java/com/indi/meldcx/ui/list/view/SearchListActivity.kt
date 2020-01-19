@@ -1,21 +1,20 @@
 package com.indi.meldcx.ui.list.view
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.indi.meldcx.R
 import com.indi.meldcx.data.CaptureImage
 import com.indi.meldcx.ui.base.view.BaseActivity
 import com.indi.meldcx.ui.base.common.MeldCXUIContainer
 import com.indi.meldcx.ui.list.presenter.ListPresenter
 import com.indi.meldcx.ui.list.view.adapters.CaptureImageAdapter
-import com.indi.meldcx.ui.vm.MeldCXViewModel
+import com.indi.meldcx.util.*
 import dagger.android.AndroidInjector
-import dagger.android.ContributesAndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import kotlinx.android.synthetic.main.search.*
@@ -31,17 +30,11 @@ class SearchListActivity : BaseActivity(), SearchListView,HasAndroidInjector{
 
     private  lateinit var adapter:CaptureImageAdapter
 
-    val onImageUrlClick = { item :CaptureImage -> urlClick(item) }
-    val onImageClick    = { item :CaptureImage -> imageClick(item) }
-    val onDeleteClick   = { item :CaptureImage -> onDeleteClick(item) }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.search_activity_layout)
         presenter.onAttach(this)
     }
-    override fun onFragmentAttached() {}
-    override fun onFragmentDettached() {}
     override fun showLoading(): View { TODO("Not Implemented")}
     override fun hideLoading()  {}
     override fun setUpRecyclerView() : CaptureImageAdapter {
@@ -64,14 +57,16 @@ class SearchListActivity : BaseActivity(), SearchListView,HasAndroidInjector{
         }
 
     })
-    override fun urlClick(item: CaptureImage) {
+    override fun onItemClick(item: CaptureImage) = setResult(Activity.RESULT_OK, Intent()
+        .apply { this.putExtra(
+        RESULT_CAPTURE_IMAGE_KEY,item) } ).also { finish() }
 
+    override fun onDeleteClick(item: CaptureImage) {
+        search_view.setQuery("",false)
+        showMessage(getString(R.string.show_on_delete,item.url))
+        presenter.onDeleteItem(item)
     }
-    override fun imageClick(item: CaptureImage) {
-
-    }
-    override fun onDeleteClick(item: CaptureImage) { presenter.onDeleteItem(item) }
-    override fun onError(error: String) = Toast.makeText(this,error,Toast.LENGTH_LONG).show()
+    override fun showMessage(error: String) = Toast.makeText(this,error,Toast.LENGTH_LONG).show()
     override fun onSearchTextClear(adapter: CaptureImageAdapter?,list: LiveData<List<CaptureImage>>) = reset.setOnClickListener {
         search_view.setQuery("",false)
         adapter?.setList(list)

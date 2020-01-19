@@ -12,8 +12,7 @@ interface SearchListView : BaseView{
  fun removeListSearchView()
  fun performSearch(adapter: CaptureImageAdapter?)
  fun onSearchTextClear(adapter: CaptureImageAdapter?,list: LiveData<List<CaptureImage>>)
- fun urlClick(item: CaptureImage)
- fun imageClick(item: CaptureImage)
+ fun onItemClick(item: CaptureImage)
  fun onDeleteClick(item: CaptureImage)
- fun onError(error: String)
+ fun showMessage(error: String)
 }

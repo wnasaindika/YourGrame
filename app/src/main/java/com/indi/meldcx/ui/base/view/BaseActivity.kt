@@ -5,8 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import dagger.android.AndroidInjection
 
-abstract class BaseActivity : AppCompatActivity(),
-    BaseFragment.CallBack {
+abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

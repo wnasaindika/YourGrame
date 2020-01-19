@@ -32,11 +32,13 @@ class CaptureImageAdapter(private val context: Context,private val lifecycleOwne
         val activity       = (context as SearchListActivity)
         val captureImage   = list[position]
         val view           = holder.itemView
+
         view.url.text      = captureImage.url
         view.datetime.text = captureImage.capturedTime
-        view.url.setOnClickListener    { activity.onImageUrlClick(captureImage) }
-        view.image.setOnClickListener  { activity.onImageClick(captureImage)    }
-        view.delete.setOnClickListener { activity.onDeleteClick(captureImage)   }
+
+        view.url.setOnClickListener    { activity.onItemClick(captureImage)   }
+        view.image.setOnClickListener  { activity.onItemClick(captureImage)   }
+        view.delete.setOnClickListener { activity.onDeleteClick(captureImage) }
         Glide.with(context).load(File(captureImage.imageLocation)).error(R.drawable.ic_icon_cross).into(view.image)
     }
 
