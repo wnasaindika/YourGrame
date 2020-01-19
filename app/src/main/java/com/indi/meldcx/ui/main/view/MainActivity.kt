@@ -11,12 +11,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import com.indi.meldcx.R
-import com.indi.meldcx.data.CaptureImage
 import com.indi.meldcx.ui.base.view.BaseActivity
 import com.indi.meldcx.ui.base.common.MeldCXUIContainer
 import com.indi.meldcx.ui.list.view.SearchListActivity
 import com.indi.meldcx.ui.main.presenter.MainPresenter
-import com.indi.meldcx.ui.vm.MeldCXViewModel
+import com.indi.meldcx.util.DATE_FORMAT
+import com.indi.meldcx.util.FILE_EXTENSION
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
@@ -40,6 +40,7 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
 
     private val onSave = { webView:WebView? -> saveImage(webView) }
     private var currentWebView: WebView? = null
+    private var onPageLoaded: (WebView?) -> Unit = { webView:WebView? -> currentWebView = webView }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,15 +73,15 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 hideLoading()
-                currentWebView = view
+                onPageLoaded.invoke(view)
             }
         }
         webView.settings.javaScriptEnabled = true
         webView.loadUrl(enter_url.text.toString())
     }
 
-    override fun navigateToListView() = image_list.setOnClickListener {  startActivity(Intent(this,
-        SearchListActivity::class.java)) }
+    override fun navigateToListView() = image_list.setOnClickListener {  startActivity(Intent(this,  SearchListActivity::class.java)) }
+
     override fun onSaveImage() = fab.setOnClickListener { onSave.invoke(currentWebView) }
 
     private fun  saveImage(webView: WebView?) = webView.let {
@@ -92,9 +93,9 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
             val canvas = Canvas(bitmap)
                 canvas.drawBitmap(bitmap,0f,bitmap.height.toFloat(), Paint())
             it.draw(canvas)
-            val file = createFile(outputDirectory,"yyyy-MM-dd-HH-mm-ss-SSS",".png")
+            val file = createFile(outputDirectory, DATE_FORMAT, FILE_EXTENSION)
             val fileStream = FileOutputStream(file)
-            mainPresenter.insertToCaptureImage(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).toString(),it.originalUrl,file.absolutePath)
+            mainPresenter.insertToCaptureImage(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)).toString(),it.originalUrl,file.absolutePath)
             bitmap.compress(Bitmap.CompressFormat.PNG,100,fileStream)
             fileStream.flush()
             fileStream.close()

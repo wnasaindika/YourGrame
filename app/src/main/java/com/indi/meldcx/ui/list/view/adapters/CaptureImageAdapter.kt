@@ -14,10 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.indi.meldcx.R
 import com.indi.meldcx.data.CaptureImage
+import com.indi.meldcx.ui.list.view.SearchListActivity
 import kotlinx.android.synthetic.main.list_row.view.*
 import java.io.File
 
-class CaptureImageAdapter(val context: Context,val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<CaptureImageAdapter.ViewHolder>() {
+class CaptureImageAdapter(private val context: Context,private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<CaptureImageAdapter.ViewHolder>() {
 
     private var list: List<CaptureImage> = emptyList()
 
@@ -28,15 +29,26 @@ class CaptureImageAdapter(val context: Context,val lifecycleOwner: LifecycleOwne
     override fun getItemCount(): Int = list.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.url.text = list[position].url
-        Glide.with(context).load(File(list[position].imageLocation)).error(R.drawable.ic_icon_cross).into(holder.itemView.image)
-
+        val activity       = (context as SearchListActivity)
+        val captureImage   = list[position]
+        val view           = holder.itemView
+        view.url.text      = captureImage.url
+        view.datetime.text = captureImage.capturedTime
+        view.url.setOnClickListener    { activity.onImageUrlClick(captureImage) }
+        view.image.setOnClickListener  { activity.onImageClick(captureImage)    }
+        view.delete.setOnClickListener { activity.onDeleteClick(captureImage)   }
+        Glide.with(context).load(File(captureImage.imageLocation)).error(R.drawable.ic_icon_cross).into(view.image)
     }
 
     fun setList(liveList:  LiveData<List<CaptureImage>>) {
         liveList.observe(lifecycleOwner, Observer {
-            list = it
+            this.list = it
+            notifyDataSetChanged()
         })
+    }
+
+    fun filter(filterString:String) {
+        this.list = this.list.filter { it.url.contains(filterString,true) }
         notifyDataSetChanged()
     }
     /**

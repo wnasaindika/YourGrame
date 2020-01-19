@@ -18,6 +18,8 @@ class MeldCXUIContainer {
     fun removeWebSearchView(container: ConstraintLayout)   =  container.findViewById<ConstraintLayout>(R.id.search_bar).let { container.removeView(it) }
     fun addProgressView(context: Context, container: ConstraintLayout): View   =  View.inflate(context,R.layout.progress,container)
     fun removeProgressView(container: ConstraintLayout) =  container.findViewById<ConstraintLayout>(R.id.progress_bar).let { container.removeView(it) }
+    fun removeListSearchView(container: ConstraintLayout)   =  container.findViewById<ConstraintLayout>(R.id.search_bar).let { container.removeView(it) }
+    fun addListSearchView(context: Context, container: ConstraintLayout): View  =  View.inflate(context,R.layout.search,container)
 
     fun getOutputDirectory(context: Context): File = context.let{
         val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
