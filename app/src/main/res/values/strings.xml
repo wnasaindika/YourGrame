@@ -3,5 +3,7 @@
     <string name="enter_a_web_url">Type a url</string>
 
     <string name="show_on_delete">%1s removed from the list</string>
+    <string name="show_saving">Saving..</string>
+    <string name="show_error">Something wong</string>
 
 </resources>

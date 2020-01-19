@@ -60,7 +60,11 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun loadWebPage() = search.setOnClickListener {
+           //clear cache
+           webView.clearCache(true)
+
            webView.webViewClient = object : WebViewClient() {
+
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 showLoading()
@@ -73,9 +77,8 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
                 onPageLoaded.invoke(view)
             }
         }
-
-        webView.settings.javaScriptEnabled = true
-        webView.loadUrl(enter_url.text.toString())
+           webView.settings.javaScriptEnabled = true
+           webView.loadUrl(enter_url.text.toString())
     }
 
     override fun navigateToListView() = image_list.setOnClickListener { startActivityForResult(Intent(this,  SearchListActivity::class.java), RESULT_FROM_SEARCH_LIST_REQUEST_CODE) }
@@ -84,6 +87,7 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
 
     private fun  saveImage(webView: WebView?) = webView.let {
         val outputDirectory = MeldCXUIContainer.instance.getOutputDirectory(this)
+        Toast.makeText(this,getString(R.string.show_saving),Toast.LENGTH_LONG).show()
         it?.apply {
             //it.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED,View.MeasureSpec.UNSPECIFIED),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED))
             //it.layout(0,0,it.measuredWidth,it.measuredHeight)
@@ -99,8 +103,7 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
             fileStream.close()
             setCaptureImageVisibility(it)
             Glide.with(this).load(file).error(R.drawable.ic_icon_cross).into(capturedImage)
-
-        } ?: Toast.makeText(this,ERROR_MESSAGE_1,Toast.LENGTH_LONG).show()
+        } ?: Toast.makeText(this,getString(R.string.show_error),Toast.LENGTH_LONG).show()
 
     }
 
