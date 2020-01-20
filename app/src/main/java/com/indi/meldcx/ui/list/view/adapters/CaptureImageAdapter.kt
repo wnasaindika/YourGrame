@@ -18,6 +18,15 @@ import com.indi.meldcx.ui.list.view.SearchListActivity
 import kotlinx.android.synthetic.main.list_row.view.*
 import java.io.File
 
+/**
+ * <h1>CaptureImageAdapter</h1>
+ * RecyclerView adapter to display capture image list
+ *
+ * @constructor (context,lifecycleOwner)
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
 class CaptureImageAdapter(private val context: Context,private val lifecycleOwner: LifecycleOwner) : RecyclerView.Adapter<CaptureImageAdapter.ViewHolder>() {
 
     private var list: List<CaptureImage> = emptyList()
@@ -42,6 +51,9 @@ class CaptureImageAdapter(private val context: Context,private val lifecycleOwne
         Glide.with(context).load(File(captureImage.imageLocation)).error(R.drawable.ic_icon_cross).into(view.image)
     }
 
+    /**
+     * @param liveList LiveData object
+     */
     fun setList(liveList:  LiveData<List<CaptureImage>>) {
         liveList.observe(lifecycleOwner, Observer {
             this.list = it
@@ -49,6 +61,10 @@ class CaptureImageAdapter(private val context: Context,private val lifecycleOwne
         })
     }
 
+    /**
+     * filter list based on url characters, words
+     * @param filterString filtered value
+     */
     fun filter(filterString:String) {
         this.list = this.list.filter { it.url.contains(filterString,true) }
         notifyDataSetChanged()

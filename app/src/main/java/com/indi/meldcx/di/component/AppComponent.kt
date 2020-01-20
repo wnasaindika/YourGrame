@@ -9,6 +9,14 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.support.AndroidSupportInjectionModule
 
+/**
+ * <h1>AppComponent</h1>
+ * Injecting MeldCX Modules to dagger
+ *
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
 @Component(modules = [AndroidSupportInjectionModule::class,AppModule::class,ActivityBuilder::class,AppViewModule::class])
 interface AppComponent {
 

@@ -3,9 +3,24 @@ package com.indi.meldcx.ui.base.view
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.indi.meldcx.ui.base.common.MeldCXUIContainer
 import dagger.android.AndroidInjection
+import javax.inject.Inject
 
-abstract class BaseActivity : AppCompatActivity() {
+/**
+ * <h1>BaseActivity</h1>
+ * BaseActivity extends AppCompatActivity to provide MeldCX of Activity,
+ * The subclass of BaseActivity consist of shared MeldCX behaviour i.e full screen mode and MeldCX Utility
+ *
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
+
+abstract class BaseActivity : AppCompatActivity(),BaseView {
+    @Inject
+    lateinit var meldCX: MeldCXUIContainer<ConstraintLayout>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +42,8 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onWindowFocusChanged(hasFocus)
         if(hasFocus) hideSystemUI()
     }
+
+    override fun getMeldCXUI(): MeldCXUIContainer<ConstraintLayout> = meldCX
     abstract fun showLoading(): View
     abstract fun hideLoading()
 }

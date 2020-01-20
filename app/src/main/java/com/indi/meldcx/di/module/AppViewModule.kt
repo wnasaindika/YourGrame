@@ -10,6 +10,15 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 import kotlin.reflect.KClass
 
+/**
+ * <h1>AppViewModule</h1>
+ * Adding MeldCX View Module dependencies to AppViewModule.
+ * this class contains all ViewModel and ViewModel related bind
+ *
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
 @Module
 abstract class AppViewModule {
     @Binds

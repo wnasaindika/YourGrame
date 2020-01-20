@@ -6,6 +6,13 @@ import com.indi.meldcx.data.CaptureImage
 import com.indi.meldcx.ui.base.view.BaseView
 import com.indi.meldcx.ui.list.view.adapters.CaptureImageAdapter
 
+/**
+ * <h1>SearchListView</h1>
+ *  interface SearchListView
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
 interface SearchListView : BaseView{
  fun setUpRecyclerView(): CaptureImageAdapter
  fun addListSearchView(): View

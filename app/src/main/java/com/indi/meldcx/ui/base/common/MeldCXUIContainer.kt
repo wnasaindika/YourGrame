@@ -9,23 +9,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.indi.meldcx.R
 import java.io.File
 
+
 /**
- * singleton MeldCX UI container
+ * <h1>MeldCXUIContainer</h1>
+ * Common class to organize search views, loading views and some UI helpers.
+ * User can dynamically add and remove layouts to their main view (ConstraintLayout)
+ *
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
  */
-class MeldCXUIContainer {
+class MeldCXUIContainer<T : ConstraintLayout>{
 
-    fun addWebSearchView(context: Context, container: ConstraintLayout): View =  View.inflate(context,R.layout.main_activity_search_view,container)
-    fun removeWebSearchView(container: ConstraintLayout)   =  container.findViewById<ConstraintLayout>(R.id.search_bar).let { container.removeView(it) }
-    fun addProgressView(context: Context, container: ConstraintLayout): View   =  View.inflate(context,R.layout.progress,container)
-    fun removeProgressView(container: ConstraintLayout) =  container.findViewById<ConstraintLayout>(R.id.progress_bar).let { container.removeView(it) }
-    fun removeListSearchView(container: ConstraintLayout)   =  container.findViewById<ConstraintLayout>(R.id.search_bar).let { container.removeView(it) }
-    fun addListSearchView(context: Context, container: ConstraintLayout): View  =  View.inflate(context,R.layout.search,container)
-
-    fun getOutputDirectory(context: Context): File = context.let{
-        val mediaDir = context.externalMediaDirs.firstOrNull()?.let {
-            File(it, context.resources.getString(R.string.app_name)).apply { mkdirs() } }
-        if (mediaDir != null && mediaDir.exists())  mediaDir else context.filesDir
-    }
+    fun addWebSearchView(context: Context, container: T): View =  View.inflate(context,R.layout.main_activity_search_view,container)
+    fun removeWebSearchView(container: T)   =  container.findViewById<T>(R.id.search_bar).let { container.removeView(it) }
+    fun addProgressView(context: Context, container: T): View   =  View.inflate(context,R.layout.progress,container)
+    fun removeProgressView(container: T) =  container.findViewById<T>(R.id.progress_bar).let { container.removeView(it) }
+    fun removeListSearchView(container: T)   =  container.findViewById<T>(R.id.search_bar).let { container.removeView(it) }
+    fun addListSearchView(context: Context, container: T): View  =  View.inflate(context,R.layout.search,container)
 
     fun setUpRecyclerViewUtility(context: Context): Triple<LinearLayoutManager, DefaultItemAnimator, DividerItemDecoration> {
         val layoutManager   = LinearLayoutManager(context)
@@ -34,8 +35,12 @@ class MeldCXUIContainer {
         return Triple(layoutManager,itemAnimator,divider)
     }
 
+    /**
+     * creating single tone object
+     * If user want to use this object where dependency injections unavailable
+     */
     private object MeldCXUI {
-        val INSTANCE = MeldCXUIContainer()
+        val INSTANCE = MeldCXUIContainer<ConstraintLayout>()
     }
 
     companion object {

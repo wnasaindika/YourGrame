@@ -19,6 +19,7 @@ import com.indi.meldcx.ui.base.view.BaseActivity
 import com.indi.meldcx.ui.base.common.MeldCXUIContainer
 import com.indi.meldcx.ui.list.view.SearchListActivity
 import com.indi.meldcx.ui.main.presenter.MainPresenter
+import com.indi.meldcx.ui.vm.MeldCXViewModel
 import com.indi.meldcx.util.*
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -29,17 +30,27 @@ import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 
-class MainActivity : BaseActivity(),HasAndroidInjector,
-    MainView {
+/**
+ * <h1>MainActivity</h1>
+ * Entry point to application, this allow you to search any website and download its content to web view
+ * user allows to capture image and user can save the image with its details
+ *
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
+class MainActivity : BaseActivity(), HasAndroidInjector, MainView {
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
     @Inject
-    lateinit var mainPresenter: MainPresenter<MainView>
+    lateinit var mainPresenter: MainPresenter<MainView,MeldCXViewModel>
 
-    private val onSave = { webView:WebView? -> saveImage(webView) }
+    private val onSave = { webView: WebView? -> saveImage(webView) }
+    /** when each time user want to new web content. this method trigger after page loading*/
+    private var onPageLoaded: (WebView?) -> Unit = { webView: WebView? -> currentWebView = webView }
+    /** temp web view holder*/
     private var currentWebView: WebView? = null
-    private var onPageLoaded: (WebView?) -> Unit = { webView:WebView? -> currentWebView = webView }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,23 +63,29 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
         super.onDestroy()
         mainPresenter.onDetach()
     }
-    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
-    override fun setSearchView(): View = MeldCXUIContainer.instance.addWebSearchView(this, main)
-    override fun removeSearchView() = MeldCXUIContainer.instance.removeWebSearchView(main)
-    override fun showLoading(): View = MeldCXUIContainer.instance.addProgressView(this, main)
-    override fun hideLoading() = MeldCXUIContainer.instance.removeProgressView(main)
 
+    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
+    //-- append layouts
+    override fun setSearchView(): View = getMeldCXUI().addWebSearchView(this, main)
+    override fun removeSearchView()    = getMeldCXUI().removeWebSearchView(main)
+    override fun showLoading(): View   = getMeldCXUI().addProgressView(this, main)
+    override fun hideLoading()         = getMeldCXUI().removeProgressView(main)
+    //-- append layouts ends
+
+    /**
+     * load web page when user click on search
+     */
     @SuppressLint("SetJavaScriptEnabled")
     override fun loadWebPage() = search.setOnClickListener {
-           //clear cache
-           webView.clearCache(true)
+        //clear cache
+        webView.clearCache(true)
 
-           webView.webViewClient = object : WebViewClient() {
+        webView.webViewClient = object : WebViewClient() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 showLoading()
-                hideCaptureImageVisibility(webView)
+                setCaptureImageVisibility(false)
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -77,44 +94,62 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
                 onPageLoaded.invoke(view)
             }
         }
-           webView.settings.javaScriptEnabled = true
-           webView.loadUrl(enter_url.text.toString())
+        webView.settings.javaScriptEnabled = true
+        webView.loadUrl(enter_url.text.toString())
     }
 
-    override fun navigateToListView() = image_list.setOnClickListener { startActivityForResult(Intent(this,  SearchListActivity::class.java), RESULT_FROM_SEARCH_LIST_REQUEST_CODE) }
+    /**
+     * navigate to List view when user click list icon
+     */
+    override fun navigateToListView() = image_list.setOnClickListener {
+        startActivityForResult(
+            Intent(this,SearchListActivity::class.java),
+            RESULT_FROM_SEARCH_LIST_REQUEST_CODE
+        )
+    }
 
+    /**
+     * save image when fab button click
+     */
     override fun onSaveImage() = fab.setOnClickListener { onSave.invoke(currentWebView) }
 
-    private fun  saveImage(webView: WebView?) = webView.let {
-        val outputDirectory = MeldCXUIContainer.instance.getOutputDirectory(this)
-        Toast.makeText(this,getString(R.string.show_saving),Toast.LENGTH_LONG).show()
+    /**
+     * process and save image
+     * @param webView WebView object
+     */
+    private fun saveImage(webView: WebView?) = webView.let {
+        val outputDirectory = getOutputDirectory(this)
+        Toast.makeText(this, getString(R.string.show_saving), Toast.LENGTH_LONG).show()
         it?.apply {
-            //it.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED,View.MeasureSpec.UNSPECIFIED),View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED))
-            //it.layout(0,0,it.measuredWidth,it.measuredHeight)
-            val bitmap = Bitmap.createBitmap(it.measuredWidth,it.measuredHeight,Bitmap.Config.ARGB_8888)
+            val bitmap =
+                Bitmap.createBitmap(it.measuredWidth, it.measuredHeight, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-                canvas.drawBitmap(bitmap,0f,bitmap.height.toFloat(), Paint())
+            canvas.drawBitmap(bitmap, 0f, bitmap.height.toFloat(), Paint())
             it.draw(canvas)
             val file = createFile(outputDirectory, DATE_FORMAT, FILE_EXTENSION)
             val fileStream = FileOutputStream(file)
-            mainPresenter.insertToCaptureImage(getDateTime(),it.originalUrl,file.absolutePath)
-            bitmap.compress(Bitmap.CompressFormat.PNG,100,fileStream)
+            mainPresenter.insertToCaptureImage(getDateTime(), it.originalUrl, file.absolutePath)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileStream)
             fileStream.flush()
             fileStream.close()
-            setCaptureImageVisibility(it)
+            setCaptureImageVisibility(true)
             Glide.with(this).load(file).error(R.drawable.ic_icon_cross).into(capturedImage)
-        } ?: Toast.makeText(this,getString(R.string.show_error),Toast.LENGTH_LONG).show()
+        } ?: Toast.makeText(this, getString(R.string.show_error), Toast.LENGTH_LONG).show()
 
     }
 
+    /**
+     * listing to Search List Activity results
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == RESULT_FROM_SEARCH_LIST_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK && data != null){
-                if(data.hasExtra(RESULT_CAPTURE_IMAGE_KEY)) {
-                    val clickedItem =  data.extras?.get(RESULT_CAPTURE_IMAGE_KEY) as CaptureImage
-                    setCaptureImageVisibility(webView)
-                    Glide.with(this).load(File(clickedItem.imageLocation)).error(R.drawable.ic_icon_cross).into(capturedImage)
+        if (requestCode == RESULT_FROM_SEARCH_LIST_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                if (data.hasExtra(RESULT_CAPTURE_IMAGE_KEY)) {
+                    val clickedItem = data.extras?.get(RESULT_CAPTURE_IMAGE_KEY) as CaptureImage
+                    setCaptureImageVisibility(true)
+                    Glide.with(this).load(File(clickedItem.imageLocation))
+                        .error(R.drawable.ic_icon_cross).into(capturedImage)
                     enter_url.setText(clickedItem.url)
                     search.performClick()
                 }
@@ -122,14 +157,19 @@ class MainActivity : BaseActivity(),HasAndroidInjector,
         }
     }
 
-    private fun setCaptureImageVisibility(webView: WebView) {
-        webView.visibility = View.GONE
-        capturedImage.visibility = View.VISIBLE
-    }
-
-    private fun hideCaptureImageVisibility(webView: WebView) {
-        webView.visibility = View.VISIBLE
-        capturedImage.visibility = View.GONE
+    /**
+     * control web view and image view visibility programmatically
+     * @param isHide flag tru for image visibility
+     */
+    private fun setCaptureImageVisibility(isHide: Boolean) = when (isHide) {
+        true -> {
+            webView.visibility = View.GONE
+            capturedImage.visibility = View.VISIBLE
+        }
+        false -> {
+            webView.visibility = View.VISIBLE
+            capturedImage.visibility = View.GONE
+        }
     }
 
 }

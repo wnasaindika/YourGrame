@@ -6,6 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
+/**
+ * <h1>CaptureImageDao</h1>
+ * @see Dao class to create, delete and insert captured images.
+ *
+ * @author  Indika Kumara
+ * @version 1.0
+ * @since   2020-01-18
+ */
 @Dao
 interface CaptureImageDao {
 
