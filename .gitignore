@@ -1,3 +1,4 @@
+*.jpg
 *.iml
 .gradle
 /local.properties
