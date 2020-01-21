@@ -22,5 +22,5 @@
   - open in android studio. then sync and run in a real device or emulator 
  ## How to run test 
   - open test package (instrument) and run the app (Not covering all te test cases)
- ## Sample App images 
+ ## Sample images 
  ![Sample1](sample1.jpg) ![Sample2](sample2.jpg)
