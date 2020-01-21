@@ -20,6 +20,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
+    useLibrary 'android.test.mock'
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
@@ -45,6 +53,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$test_ext_junut"
     androidTestImplementation "androidx.test:runner:$test_runner_version"
     androidTestImplementation "androidx.test.espresso:espresso-core:$expresso_core"
+    androidTestImplementation "androidx.test:core-ktx:$test_core_ktx"
 
     compileOnly("org.jetbrains:annotations:13.0")
     testCompileOnly("org.jetbrains:annotations:13.0")
@@ -54,10 +63,10 @@ dependencies {
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
-// Extensions = ViewModel + LiveData
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-    kapt "android.arch.lifecycle:compiler:1.1.1"
-// Room
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    kapt "android.arch.persistence.room:compiler:1.1.1"
+   // Extensions = ViewModel + LiveData
+    implementation "android.arch.lifecycle:extensions:$v_extensions"
+    kapt "android.arch.lifecycle:compiler:$v_extensions"
+    //Room support
+    implementation "android.arch.persistence.room:runtime:$room_support"
+    kapt "android.arch.persistence.room:compiler:$room_support"
 }
