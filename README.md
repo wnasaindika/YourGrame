@@ -1,9 +1,9 @@
 # MeldCX Capture a Web Site
  ## App Architecture
-  The app use MVP architecture using ModelView.the app desing to scale from mediam to larger
+  The app use MVP architecture using ModelView.the app design to scale from medium to larger
  ## How to use 
   - type a url and press search 
-  - then (after loading) capture the image pressing middle icon at bottem 
+  - then (after loading) capture the image pressing middle icon at bottom
   - press list icon to view captured images (stored in mobile)    
  ## Technologies in use 
   - Dagger 2
